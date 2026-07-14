@@ -1,0 +1,86 @@
+Account Name,Industry,Annual Revenue,NumberOfEmployees,BillingCountry,Description
+Acme Corporation,technology,1100040000.0,2822,United States,Founded 1996
+Betasoloin,medical,251410000.0,495,United States,Founded 1999
+Betatech,medical,647180000.0,1185,Kenya,Founded 1986
+Bioholding,medical,587340000.0,1356,Philippines,Founded 2012
+Bioplex,medical,326820000.0,1016,United States,Founded 1991
+Blackzim,retail,497110000.0,1588,United States,Founded 2009
+Bluth Company,technology,1242320000.0,3027,United States,Founded 1993; subsidiary of Acme Corporation
+Bubba Gump,software,987390000.0,2253,United States,Founded 2002
+Cancity,retail,718620000.0,2448,United States,Founded 2001
+Cheers,entertainment,4269900000.0,6472,United States,Founded 1993; subsidiary of Massive Dynamic
+Codehow,software,2714900000.0,2641,United States,Founded 1998; subsidiary of Acme Corporation
+Condax,medical,4540000.0,9,United States,Founded 2017
+Conecom,technology,1520660000.0,1806,United States,Founded 2005
+Dalttechnology,software,98790000.0,96,United States,Founded 2013; subsidiary of Bubba Gump
+dambase,marketing,2173980000.0,2928,United States,Founded 1995; subsidiary of Inity
+Domzoom,entertainment,217870000.0,551,United States,Founded 1998
+Doncon,technology,587720000.0,1501,United States,Founded 2010
+Donquadtech,technology,1712680000.0,3194,United States,Founded 1992; subsidiary of Acme Corporation
+Dontechi,software,4618000000.0,10083,United States,Founded 1982
+Donware,marketing,1197440000.0,2570,United States,Founded 1999
+Fasehatice,retail,4968910000.0,7523,United States,Founded 1990
+Faxquote,telecommunications,1825820000.0,5595,United States,Founded 1995; subsidiary of Sonron
+Finhigh,finance,1102430000.0,1759,United States,Founded 2006
+Finjob,employment,2059900000.0,3644,United States,Founded 1988
+Funholding,finance,2819500000.0,7227,United States,Founded 1991; subsidiary of Golddex
+Ganjaflex,retail,5158710000.0,17479,Japan,Founded 1995
+Gekko & Co,retail,2520830000.0,3502,United States,Founded 1990
+Genco Pura Olive Oil Company,retail,894330000.0,1635,Italy,Founded 2007
+Globex Corporation,technology,1223720000.0,2497,Norway,Founded 2000
+Gogozoom,telecommunications,86680000.0,187,United States,Founded 2007; subsidiary of Sonron
+Golddex,finance,52500000.0,165,United States,Founded 2008
+Goodsilron,marketing,2952730000.0,5107,United States,Founded 2000
+Green-Plus,services,692190000.0,1922,United States,Founded 2003
+Groovestreet,retail,223800000.0,299,United States,Founded 2003
+Hatfan,services,792460000.0,1299,United States,Founded 1982
+Hottechi,technology,8170380000.0,16499,Korea,Founded 1997
+Initech,telecommunications,6395050000.0,20275,United States,Founded 1994
+Inity,marketing,2403580000.0,8801,United States,Founded 1986
+Isdom,medical,3178240000.0,4540,United States,Founded 2002
+Iselectrics,technology,527110000.0,1428,United States,Founded 2011; subsidiary of Acme Corporation
+J-Texon,retail,1388670000.0,3583,United States,Founded 1989
+Kan-code,software,11698030000.0,34288,United States,Founded 1982
+Kinnamplus,retail,702720000.0,1831,United States,Founded 2004
+Konex,technology,7708380000.0,13756,United States,Founded 1980
+Konmatfix,marketing,375430000.0,1190,United States,Founded 1985
+Labdrill,medical,2741370000.0,9226,United States,Founded 1985
+Lexiqvolax,medical,1618890000.0,3889,United States,Founded 2004
+Massive Dynamic,entertainment,665060000.0,1095,United States,Founded 1989
+Mathtouch,marketing,3027460000.0,9516,Jordan,Founded 1984
+Nam-zim,services,405590000.0,1179,Brazil,Founded 1987; subsidiary of Warephase
+Newex,services,1012720000.0,3492,Germany,Founded 1991
+Ontomedia,employment,882120000.0,2769,United States,Founded 1997
+Opentech,finance,355230000.0,853,United States,Founded 1994
+Plexzap,retail,2437850000.0,4874,United States,Founded 2001
+Plusstrip,entertainment,349810000.0,315,United States,Founded 2002
+Plussunin,retail,1419980000.0,4018,United States,Founded 2003
+Rangreen,technology,2938670000.0,8775,Panama,Founded 1987
+Rantouch,telecommunications,1188420000.0,3015,United States,Founded 1994
+Ron-tech,medical,3922420000.0,6837,United States,Founded 1992
+Rundofase,technology,1008060000.0,1238,United States,Founded 1983
+Scotfind,software,6354870000.0,16780,United States,Founded 1996; subsidiary of Bubba Gump
+Scottech,marketing,45390000.0,100,United States,Founded 2012; subsidiary of Inity
+Silis,medical,2818380000.0,6290,United States,Founded 1994
+Singletechno,retail,2214940000.0,5374,United States,Founded 1996
+Sonron,telecommunications,1699850000.0,5108,United States,Founded 1999
+Stanredtax,finance,1698200000.0,3798,United States,Founded 1987
+Statholdings,employment,291270000.0,586,United States,Founded 1997
+Streethex,retail,1376800000.0,1165,Belgium,Founded 1988
+Sumace,retail,167890000.0,493,Romania,Founded 2000
+Sunnamplex,marketing,894370000.0,1593,Poland,Founded 2008
+The New York Inquirer,medical,439210000.0,792,United States,Founded 1996
+Toughzap,retail,332430000.0,799,United States,Founded 1995
+Treequote,telecommunications,5266090000.0,8595,United States,Founded 1988; subsidiary of Sonron
+Umbrella Corporation,finance,2022140000.0,5113,United States,Founded 1998
+Vehement Capital Partners,finance,646100000.0,883,United States,Founded 1993; subsidiary of Golddex
+Warephase,services,2041730000.0,5276,United States,Founded 1997
+Xx-holding,finance,7537240000.0,20293,United States,Founded 1993
+Xx-zobam,entertainment,3838390000.0,8274,United States,Founded 1989
+Y-corporation,employment,2871350000.0,9561,United States,Founded 1983
+Yearin,retail,2261050000.0,3851,United States,Founded 2005
+Zathunicon,retail,71120000.0,144,United States,Founded 2010
+Zencorporation,technology,40790000.0,142,China,Founded 2011
+Zoomit,entertainment,324190000.0,978,United States,Founded 1992
+Zotware,software,4478470000.0,13809,United States,Founded 1979
+Zumgoity,medical,441080000.0,1210,United States,Founded 1984
