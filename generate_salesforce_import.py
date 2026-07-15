@@ -44,7 +44,14 @@ STAGE_MAP = {
 }
 
 TYPO_FIXES_SECTOR = {"technolgy": "technology"}
-TYPO_FIXES_COUNTRY = {"Philipines": "Philippines"}
+TYPO_FIXES_COUNTRY = {
+    "Philipines": "Philippines",
+    "Korea": "Korea, Republic of",  # matches Salesforce's State/Country picklist value
+}
+PRODUCT_NAME_FIXES = {
+    "GTXPro": "GTX Pro",  # sales_pipeline.csv uses no-space variant; products.csv and
+                          # the Salesforce Product picklist both use "GTX Pro"
+}
 
 PLACEHOLDER_HORIZON_DAYS = 90
 
@@ -73,7 +80,21 @@ def build_accounts_import():
 def build_opportunities_import():
     pipeline = pd.read_csv(RAW_DIR / "sales_pipeline.csv", parse_dates=["engage_date", "close_date"])
     products = pd.read_csv(RAW_DIR / "products.csv")
+
+    # Normalize product name inconsistencies before anything else touches "product"
+    pipeline["product"] = pipeline["product"].replace(PRODUCT_NAME_FIXES)
     price_lookup = dict(zip(products["product"], products["sales_price"]))
+
+    total_rows = len(pipeline)
+
+    # Opportunities with no account can't be meaningfully reported on in
+    # Salesforce (Account is the anchor for pipeline-by-account, forecast
+    # rollups, etc). Exclude them from the Salesforce import specifically;
+    # they are NOT excluded from the SQL/Postgres layer, which retains the
+    # full 8,800-row dataset for accurate pipeline volume and funnel metrics.
+    missing_account_mask = pipeline["account"].isna()
+    missing_account_count = missing_account_mask.sum()
+    pipeline = pipeline[~missing_account_mask].copy()
 
     today = pd.Timestamp(datetime.today().date())
 
@@ -103,7 +124,7 @@ def build_opportunities_import():
         "Sales Agent": pipeline["sales_agent"],
         "Opportunity_ID__c": pipeline["opportunity_id"],  # keep source ID for reconciliation
     })
-    return out, pipeline
+    return out, pipeline, total_rows, missing_account_count
 
 
 def main():
@@ -114,27 +135,35 @@ def main():
     accounts_out.to_csv(accounts_path, index=False)
     print(f"Wrote {len(accounts_out)} accounts to {accounts_path}")
 
-    opps_out, pipeline_full = build_opportunities_import()
+    opps_out, pipeline_filtered, total_source_rows, missing_account_count = build_opportunities_import()
     opps_path = OUT_DIR / "sfdc_opportunities_import.csv"
     opps_out.to_csv(opps_path, index=False)
     print(f"Wrote {len(opps_out)} opportunities to {opps_path}")
 
     print("\n--- Reconciliation check ---")
-    print(f"Source sales_pipeline.csv row count: {len(pipeline_full)}")
-    print(f"Opportunities import row count:      {len(opps_out)}")
-    assert len(pipeline_full) == len(opps_out), "Row count mismatch! Investigate before importing."
-    print("Row counts match. Safe to import.")
+    print(f"Source sales_pipeline.csv row count:      {total_source_rows}")
+    print(f"Excluded - no account assigned:           {missing_account_count}")
+    print(f"Expected Opportunities import row count:  {total_source_rows - missing_account_count}")
+    print(f"Actual Opportunities import row count:    {len(opps_out)}")
+    assert len(opps_out) == total_source_rows - missing_account_count, \
+        "Row count doesn't match expected exclusions! Investigate before importing."
+    print("Reconciled. Safe to import.")
+    print(f"\nNote: all {total_source_rows} rows remain in the SQL/Postgres layer;")
+    print(f"the {missing_account_count}-row exclusion applies to the Salesforce import only.")
 
     print("\n--- Stage distribution in import file ---")
     print(opps_out["Stage"].value_counts())
 
     print("\n--- Placeholder close dates assigned ---")
-    placeholder_count = pipeline_full["close_date"].isna().sum()
+    placeholder_count = pipeline_filtered["close_date"].isna().sum()
     print(f"{placeholder_count} rows received a placeholder Close Date (originally null)")
 
     print("\n--- Estimated amounts assigned (from product sales_price) ---")
-    estimated_count = pipeline_full["close_value"].isna().sum()
+    estimated_count = pipeline_filtered["close_value"].isna().sum()
     print(f"{estimated_count} rows received an estimated Amount (originally null close_value)")
+
+    print("\n--- Product values in import file (post-normalization) ---")
+    print(opps_out["Product"].value_counts())
 
 
 if __name__ == "__main__":
