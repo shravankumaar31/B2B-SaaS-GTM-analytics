@@ -137,6 +137,51 @@ Edition org rather than an expiring trial.
 
 ---
 
+## 7. Reverted from Developer Edition back to Starter Suite (storage cap)
+
+**Finding:** Immediately after migrating to Developer Edition (see #6),
+the Opportunities Insert via dataloader.io failed partway through with
+3,175 errors, all reading `"ERROR: storage limit exceeded"`. Checking
+Setup → Storage Usage revealed the org's Data Storage limit is a fixed
+**5.0 MB**, already at 174% (8.7 MB) after only 4,231 partial
+Opportunity records. Salesforce charges a flat ~2KB of storage per
+record regardless of field count -- confirmed by the math (8.3 MB /
+4,231 Opportunities ≈ 1.96 KB/record; 196 KB / 98 Accounts ≈ 2 KB/record).
+At that rate, a 5MB free Developer Edition org can hold roughly
+2,300-2,400 Opportunities maximum -- nowhere near the full 7,375-row
+dataset. This is a hard, well-documented platform ceiling on the free
+tier, not a configuration mistake.
+
+**Decision:** Reverted to the original Salesforce Starter Suite trial
+org rather than permanently scoping the CRM layer down to a ~2,000-row
+sample on Developer Edition. Starter Suite had already successfully
+held the complete 7,375-row Opportunities import (proven in the
+original Phase 2 pass) with zero storage errors, and already had all 4
+reports built plus a dashboard in progress.
+
+**Reasoning:** The tradeoff came down to Starter Suite's 30-day trial
+window versus Developer Edition's permanent-but-tiny storage cap. For a
+portfolio project, what an interviewer actually references is the
+GitHub repo, documentation, and screenshots -- not live login access to
+a Salesforce org, which isn't something you'd share credentials for
+anyway. Rebuilding all 4 reports and the dashboard a second time on a
+necessarily incomplete, artificially-sampled dataset was a worse
+tradeoff than simply capturing screenshots from the already-complete
+Starter Suite build before its trial period ends.
+
+**Result:** Returned to the Starter Suite org with the full,
+already-validated 7,375-row Opportunities dataset and all 4 reports
+intact. Screenshots and documentation captured throughout this project
+remain valid regardless of the trial's eventual expiration.
+
+**Note on `sfdc_opportunities_import_with_ids.csv`:** this file was
+removed in decision #6 because its Account IDs belonged to the
+Developer Edition org and were stale there. Since this reversal returns
+to the original Starter Suite org -- the same org those IDs were
+exported from -- the file is valid again and was restored to the repo.
+
+---
+
 ## 3. Other typo normalizations (minor)
 
 - `accounts.sector`: `"technolgy"` → `"technology"`
