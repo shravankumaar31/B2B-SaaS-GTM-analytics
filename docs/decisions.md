@@ -94,6 +94,49 @@ expected stage distribution.
 
 ---
 
+## 6. Migrated from Salesforce Starter Suite trial to Developer Edition
+
+**Finding:** The Salesforce org used for Phase 2 turned out to be a
+**Starter Suite trial** (30-day trial, simplified UI, no native Reports
+tab in the main nav, restrictive default Stage/Forecast Category
+picklist configuration) rather than the free, permanent **Developer
+Edition** the project plan called for. This wasn't obvious until well
+into report-building, when the trial's default Stage picklist and
+inactive-value forecast mapping (see #5 above) caused confusing report
+results.
+
+**Decision:** Signed up for a proper Salesforce Developer Edition org
+and rebuilt the CRM layer there: recreated the two custom fields
+(`Product__c`, `Sales_Agent__c`), re-imported the same 85 Accounts via
+the Data Import Wizard, and re-imported Opportunities using
+**dataloader.io** (web-based) instead of the desktop Data Loader used
+previously.
+
+**Why dataloader.io instead of desktop Data Loader again:** the desktop
+app required a Java runtime install and had a persistent window
+rendering bug on this machine (its SWT-based window opened off-screen
+and had to be forced back into view via AppleScript). dataloader.io also
+has a genuinely simpler workflow for this use case: its "Lookup via"
+field mapping resolves an `Account Name` text column directly to the
+correct `AccountId` for the *current* org at import time, which meant
+we could reuse the original `sfdc_opportunities_import.csv` (plain text
+Account Name) directly, with no need to first export Account IDs and
+merge them in a separate script.
+
+**File impact:** `sfdc_opportunities_import_with_ids.csv` and its
+generator `merge_account_ids.py` were built for the desktop Data
+Loader's ID-based Insert requirement. That output file is now stale
+(the Account IDs it contains belong to the retired Starter Suite org)
+and was removed from the repo. `merge_account_ids.py` itself is kept as
+reference code, since the ID-merge approach is still valid and worth
+showing, but it is not part of the current import pipeline.
+
+**Result:** All Salesforce-side artifacts (Accounts, Opportunities,
+custom fields, reports, dashboard) now live in a permanent Developer
+Edition org rather than an expiring trial.
+
+---
+
 ## 3. Other typo normalizations (minor)
 
 - `accounts.sector`: `"technolgy"` → `"technology"`
