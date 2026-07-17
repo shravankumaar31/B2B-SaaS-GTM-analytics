@@ -1,8 +1,7 @@
 # Decisions Log
 
 A running log of judgment calls made while building this project, and the
-reasoning behind each. Kept transparent rather than buried, since these are
-exactly the kind of tradeoffs worth being able to explain in an interview.
+reasoning behind each.
 
 ---
 
@@ -54,6 +53,38 @@ product's numbers in half.
 
 **Result:** All product-level reporting across every layer of this
 project now correctly groups under the 7 canonical product names.
+
+---
+
+## 3. Other typo normalizations (minor)
+
+- `accounts.sector`: `"technolgy"` → `"technology"`
+- `accounts.office_location`: `"Philipines"` → `"Philippines"`,
+  `"Korea"` → `"Korea, Republic of"` (required to match Salesforce's
+  State/Country picklist value; caused one failed row on first import
+  attempt, resolved by adding this mapping)
+
+---
+
+## 4. Placeholder values for incomplete open pipeline
+
+**Finding:** Salesforce requires every Opportunity to have a Close Date.
+2,089 rows (500 Prospecting with no dates at all, 1,589 Engaging with an
+engage_date but no close_date) don't have one in the source data, since
+they're still open. Similarly, `close_value` is only populated for
+closed deals, leaving 2,089 rows with no Amount.
+
+**Decision:**
+- Close Date: `engage_date + 90 days` where engage_date exists,
+  otherwise `today + 90 days`.
+- Amount: the product's list `sales_price` from `products.csv`, as an
+  estimated deal value.
+
+**Reasoning:** Both are reasonable, documented placeholders rather than
+leaving required fields blank or guessing arbitrarily. The 90-day
+horizon reflects a typical sales cycle assumption; using list price as
+the estimated Amount for open deals is a standard sales-ops convention
+when an actual negotiated value isn't yet known.
 
 ---
 
@@ -182,32 +213,66 @@ exported from -- the file is valid again and was restored to the repo.
 
 ---
 
-## 3. Other typo normalizations (minor)
+## 8. SQL validation layer independently confirms all prior findings
 
-- `accounts.sector`: `"technolgy"` → `"technology"`
-- `accounts.office_location`: `"Philipines"` → `"Philippines"`,
-  `"Korea"` → `"Korea, Republic of"` (required to match Salesforce's
-  State/Country picklist value; caused one failed row on first import
-  attempt, resolved by adding this mapping)
+**What was done:** built `sql/02_validation.sql`, a set of 9 queries
+against the raw Postgres schema covering: row count reconciliation,
+orphan-account detection (both directions -- blank accounts, and
+accounts that don't match between tables), the GTXPro/GTX Pro product
+name mismatch, a full null audit by deal stage, duplicate checks on
+`opportunity_id` and on account names (case-insensitive), and a
+referential integrity check tying `subscriptions` back to genuine Won
+opportunities.
+
+**Result:** every query returned exactly the expected result --
+including the two known data quality issues (1,425 orphan pipeline
+rows, the GTXPro naming split), which were independently reproduced via
+SQL rather than just carried over from the earlier Python/Salesforce
+work. All duplicate, referential integrity, and near-duplicate checks
+came back clean (0 rows). This confirms the raw Postgres layer is a
+faithful, fully reconciled copy of the source data, and that the two
+known issues are the only data quality problems in the dataset -- not
+symptoms of a broader problem that only Python or Salesforce happened
+to catch.
 
 ---
 
-## 4. Placeholder values for incomplete open pipeline
+## 9. Stage funnel tie-break bug, and a conversion-rate metric this dataset can't support
 
-**Finding:** Salesforce requires every Opportunity to have a Close Date.
-2,089 rows (500 Prospecting with no dates at all, 1,589 Engaging with an
-engage_date but no close_date) don't have one in the source data, since
-they're still open. Similarly, `close_value` is only populated for
-closed deals, leaving 2,089 rows with no Amount.
+**Finding 1 (bug):** the first version of the stage conversion funnel
+query gave Won and Lost the same `stage_order` value (both = 3), since
+they're both "final" stages. This created a tie inside the `LAG()`
+window function's `ORDER BY`, and Postgres does not guarantee row order
+for ties without an explicit tiebreaker -- so the "percent of previous
+stage" computed for Won and Lost was based on an arbitrary, undefined
+ordering between them, not a meaningful comparison. Fixed by giving
+every stage a distinct `stage_order` (1-4) so the window function's
+ordering is fully deterministic.
 
-**Decision:**
-- Close Date: `engage_date + 90 days` where engage_date exists,
-  otherwise `today + 90 days`.
-- Amount: the product's list `sales_price` from `products.csv`, as an
-  estimated deal value.
+**Finding 2 (data limitation, not a bug):** even after fixing the tie,
+attempting to compute "% of Engaging deals that became Won" produced
+266.7% -- a mathematically impossible conversion rate, since a rate can
+never exceed 100%. Root cause: `sales_pipeline` records only each
+deal's current/final stage, not a history of stage transitions over
+time. Won and Lost are cumulative totals across the dataset's entire
+history; Engaging is a point-in-time snapshot of deals currently
+sitting in that stage. Dividing one by the other compares two
+fundamentally different kinds of counts and produces a number that
+looks like a percentage but isn't one.
 
-**Reasoning:** Both are reasonable, documented placeholders rather than
-leaving required fields blank or guessing arbitrarily. The 90-day
-horizon reflects a typical sales cycle assumption; using list price as
-the estimated Amount for open deals is a standard sales-ops convention
-when an actual negotiated value isn't yet known.
+**Decision:** removed the Engaging-to-Won/Lost "conversion rate" query
+entirely rather than report a number that looks precise but is not
+actually valid. Kept the overall win rate (Won / (Won + Lost), both
+cumulative totals -- a genuinely apples-to-apples comparison) as the
+one defensible closed-outcome metric this dataset supports.
+
+**Why this matters:** this is a distinction worth being able to explain
+clearly -- a true stage-to-stage funnel conversion rate requires
+tracking individual deals as they move through stages over time (cohort
+analysis), which this dataset's structure doesn't provide. Recognizing
+when a data structure can't support a metric, rather than forcing a
+calculation that produces a technically-computed-but-meaningless
+number, is exactly the kind of judgment call that separates a junior
+analyst running queries from a senior one interpreting them correctly.
+
+---
